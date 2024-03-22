@@ -4,12 +4,14 @@
 
 package phone.server;
 
+import java.util.HashMap;
+
 /**
  *
- * @author giorg
+ * @author Γεώργιος Ζάχος (ΑΜ: 321/2021020)
  */
 public class Server {
-
+    
     public static void main(String[] args) {
         
     }
