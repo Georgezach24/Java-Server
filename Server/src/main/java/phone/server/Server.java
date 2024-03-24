@@ -4,8 +4,7 @@
 
 package phone.server;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -17,60 +16,72 @@ import java.util.HashMap;
  */
 public class Server {
     
-    private static HashMap<String,Contact> conts = new HashMap<String,Contact>();
+    private static HashMap<String, Contact> conts = new HashMap<>();
     
     public static void main(String[] args) {
-        
-        try
+        conts.put("GEORGIOU", new Contact("GEORGE","GEORGIOU","21034556"));
+        try 
         {
             ServerSocket server = new ServerSocket(5555);
             
-            while(true)
+            while(true) 
             {
                 System.out.println("Accepting Connection...");
-                System.out.println("Local Address :"+server.getInetAddress()+" Port :"+server.getLocalPort());
                 Socket connection = server.accept();
-                BufferedReader instream = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                ObjectInputStream instream = new ObjectInputStream(connection.getInputStream());
                 ObjectOutputStream outstream = new ObjectOutputStream(connection.getOutputStream());
                 
-                String input = instream.readLine();
+                String input = instream.readUTF();
                 
-                if(input.equals("START"))
+                if(input.equals("START")) 
                 {
-                    String msg;
-                    msg = "WAITING";
-                    outstream.writeObject(msg);
+                    String msg = "WAITING";
+                    outstream.writeUTF(msg);
                     outstream.flush();
                     
-                    if(input.equals("REQUEST_INSERT"))
-                    {
-                        //TODO: IMPLEMENT LATER
-                    }
-                    
-                    if(input.equals("REQUEST_SEARCH"))
-                    {
-                        input = instream.readLine();
+                    input = instream.readUTF();
+                }    
+                if(input.equals("REQUEST_SEARCH")) 
+                {
+                    String surname = instream.readUTF();
                         
-                        if(conts.containsKey(input))
+                        if(conts.containsKey(surname)) 
                         {
-                            Contact contact = conts.get(input);
-                            outstream.writeObject(contact);
+                            Contact contact = conts.get(surname);
+                            outstream.writeUTF(contact.toString());
                             outstream.flush();
-                            outstream.writeObject("OK");
+                            outstream.writeUTF("OK");
                             outstream.flush();
                         }
-                        else
+                        else 
                         {
-                            outstream.writeObject("NORECORD");
+                            outstream.writeUTF("NORECORD");
                             outstream.flush();
                         }
-                        
-                        
-                    }
                 }
+                if(input.equals("REQUEST_INSERT")) //FIX
+                {
+                    String surname = instream.readUTF();
+                        
+                        if(conts.containsKey(surname)) 
+                        {
+                            Contact contact = conts.get(surname);
+                            outstream.writeUTF(contact.toString());
+                            outstream.flush();
+                            outstream.writeUTF("OK");
+                            outstream.flush();
+                        }
+                        else 
+                        {
+                            outstream.writeUTF("NORECORD");
+                            outstream.flush();
+                        }
+                }
+                
+                connection.close();
             }
         }
-        catch(Exception ex)
+        catch(Exception ex) 
         {
             ex.printStackTrace();
         }
