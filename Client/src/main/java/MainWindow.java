@@ -2,7 +2,6 @@
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Scanner;
 import javax.swing.JOptionPane;
 
 /*
@@ -158,7 +157,7 @@ public class MainWindow extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-    //Λογική για την αναζήτηση μιας επαφής.
+        //Λογική για την αναζήτηση μιας επαφής.
         try{
             Socket sock = new Socket("localhost" , 5555); //Σύνδεση στον server.
             String input;
@@ -184,7 +183,7 @@ public class MainWindow extends javax.swing.JFrame {
                 }
                 
                 //Αποστολή του επιθέτου προς αναζήτηση.
-                outstream.writeUTF(surname);
+                outstream.writeUTF(surname.toUpperCase());
                 outstream.flush();
                 
                 //Ανάγνωση και εμφάνηση του αποτελέσματος της αναζήτησης.
@@ -197,6 +196,10 @@ public class MainWindow extends javax.swing.JFrame {
                 
                 sock.close(); //Κλείσιμο της σύνδεσης.
             }
+            else //Εμφάνηση μηνύματος για αποτυχία σε περίπτωση που δεν τιρηθεί το πρωτόκολλο.
+            {
+                JOptionPane.showMessageDialog(this, "Server busy try again later!", "Server Response", JOptionPane.ERROR_MESSAGE);
+            }
         }
         catch(Exception ex)
         {
@@ -205,7 +208,9 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        //Λογική για την εισαγωγή μιας νέας επαφής.
         try {
+        //Παρόμοια βήματα με την αναζήτηση.
         Socket sock = new Socket("localhost" , 5555);
         ObjectOutputStream outstream = new ObjectOutputStream(sock.getOutputStream());
         ObjectInputStream instream = new ObjectInputStream(sock.getInputStream());
@@ -214,29 +219,41 @@ public class MainWindow extends javax.swing.JFrame {
         outstream.flush();
         String input = instream.readUTF();
         
-        if(input.equals("WAITING")) {
+        if(input.equals("WAITING"))  // Αν ο server απαντήσει με waiting ξεκινάει η λογική εισαγωγής.
+        {
 
-            Contact contact = new Contact();
+            Contact contact = new Contact(); // Δημιουργεία ενός αντικειμένου επαφής για την εισαγωγή.
             
-            outstream.writeUTF("REQUEST_INSERT");
+            outstream.writeUTF("REQUEST_INSERT"); // Αποστολή της πρόθεσης να δημιουργήσουμε νέα επαφή στον server.
             outstream.flush();
-
+            
+            //Εμφάνηση popup μηνυμάτων για την εισαγωγή των απαράιτητων στοιχείων μιας επαφής.
             String name = JOptionPane.showInputDialog(this, "Enter name:", "Insert Contact Info", JOptionPane.PLAIN_MESSAGE);
             String surname = JOptionPane.showInputDialog(this, "Enter surname:", "Insert Contact Info", JOptionPane.PLAIN_MESSAGE);
             String phoneNumber = JOptionPane.showInputDialog(this, "Enter phone number:", "Insert Contact Info", JOptionPane.PLAIN_MESSAGE);
-
+            String address = JOptionPane.showInputDialog(this, "Enter address:", "Insert Contact Info", JOptionPane.PLAIN_MESSAGE);
+            String profession = JOptionPane.showInputDialog(this, "Enter profession:", "Insert Contact Info", JOptionPane.PLAIN_MESSAGE);
+            
+            //Εισαγωγή όλων των στοιχείων που δώθηκαν από τον χρήστη, στο αντικέιμενο της επαφής που θα στείλουμε στον server.
             contact.setName(name);
             contact.setSurname(surname);
             contact.setNumber(phoneNumber);
-
+            contact.setAddress(address);
+            contact.setProffesion(profession);
+            
+            //Αποστολή του αντικειμένου επαφής στον server.
             outstream.writeObject(contact);
             outstream.flush();
-
-            input = instream.readUTF();
-
+            
+            //Ανάγνωση του μηνύματος απάντησης του server και εμφάνησή του
+            input = instream.readUTF(); 
             JOptionPane.showMessageDialog(this, input, "Server Response", JOptionPane.INFORMATION_MESSAGE);
 
-            sock.close();
+            sock.close(); //Κλείσιμο σύνδεσης.
+        }
+        else //Εμφάνηση μηνύματος για αποτυχία σε περίπτωση που δεν τιρηθεί το πρωτόκολλο.
+        {
+            JOptionPane.showMessageDialog(this, "Server busy try again later!", "Server Response", JOptionPane.ERROR_MESSAGE);
         }
     } catch (Exception ex) {
         ex.printStackTrace();
@@ -244,7 +261,7 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        System.exit(1);
+        System.exit(0);// Κλείσιμο του client σε περίπτωση που επιλέξει το κουμπι disconect.
     }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
