@@ -57,7 +57,7 @@ public class Server {
                         if(conts.containsKey(surname.toUpperCase())) 
                         {
                             Contact contact = conts.get(surname.toUpperCase());
-                            outstream.writeObject(contact.toString());
+                            outstream.writeUTF(contact.toString());
                             outstream.flush();
                         }
                         //Αν δεν υπάρχει στένουμε το μήνυμα norecord.
