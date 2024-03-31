@@ -187,7 +187,7 @@ public class MainWindow extends javax.swing.JFrame {
                 outstream.flush();
                 
                 //Ανάγνωση και εμφάνηση του αποτελέσματος της αναζήτησης.
-                String in = instream.readObject().toString();
+                String in = instream.readUTF();
                 JOptionPane.showMessageDialog(this, in, "Search Result", JOptionPane.INFORMATION_MESSAGE);
                 
                 //Ανάγνωση και εμφάνηση της κατάστασης του server.
